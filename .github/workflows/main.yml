@@ -7,6 +7,15 @@ on:
      branches:
      - main
 
+permissions:
+  contents: read
+  id-token: write    
+
+env:
+  REGION: us-central1              # ajuste para sua região do Artifact Registry
+  REPOSITORY: review-filmes        # nome do repo de imagens no Artifact Registry
+  IMAGE_NAME: review-filmes-web    # nome da imagem  
+
 jobs:
   build:
     name: Build
@@ -21,3 +30,36 @@ jobs:
       - name: Execução do comando build
         working-directory: ./src
         run: dotnet build Review-Filmes.sln
+
+  release:
+    name: Criação de Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtendo o código do projeto
+        uses: actions/checkout@v4
+
+      - name: Autenticando no Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          token_format: 'access_token'
+          project_id: ${{ vars.PROJECT_ID }}
+          service_account: ${{ vars.SERVICE_ACCOUNT_ID }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_ID }}
+
+      - name: Login no Artifact Registry (Docker)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Build e Push da Imagem Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          file: ./src/Review-Filmes.Web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
