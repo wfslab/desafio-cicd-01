@@ -11,11 +11,6 @@ permissions:
   contents: read
   id-token: write    
 
-env:
-  REGION: us-central1              # ajuste para sua região do Artifact Registry
-  REPOSITORY: review-filmes        # nome do repo de imagens no Artifact Registry
-  IMAGE_NAME: review-filmes-web    # nome da imagem  
-
 jobs:
   build:
     name: Build
@@ -51,7 +46,7 @@ jobs:
       - name: Login no Artifact Registry (Docker)
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGION }}-docker.pkg.dev
+          registry: ${{ vars.REGION }}-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
@@ -62,5 +57,5 @@ jobs:
           file: ./src/Review-Filmes.Web/Dockerfile
           push: true
           tags: |
-            ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:latest
+            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:v${{ github.run_number }}
