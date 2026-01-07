@@ -26,10 +26,15 @@ jobs:
         working-directory: ./src
         run: dotnet build Review-Filmes.sln
 
+  testes:
+    needs: [build]
+    uses: wandersonaju/desafio-cicd-01/.github/workflows/teste.yml@main
+    
+
   release:
     name: Criação de Release
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [testes]
     steps:
       - name: Obtendo o código do projeto
         uses: actions/checkout@v4
