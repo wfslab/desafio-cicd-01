@@ -47,6 +47,8 @@ namespace Review_Filmes.Web.Controllers
 		{
 			Filme filme = this.filmeRepo.GetById(review.FilmeID);
 
+			string teste;
+
 			if (filme != null)
 			{
 				filme.AddReview(new Review(review.FilmeID, review.Nome, review.Avaliacao));
