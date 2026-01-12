@@ -29,6 +29,7 @@ jobs:
   testes:
     needs: [build]
     uses: wandersonaju/desafio-cicd-01/.github/workflows/teste.yml@main
+    secrets: inherit
     
 
   release:
