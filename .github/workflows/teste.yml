@@ -60,8 +60,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'adopt'
-          
+          distribution: 'adopt'          
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
