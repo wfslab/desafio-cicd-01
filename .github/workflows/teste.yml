@@ -74,10 +74,11 @@ jobs:
         working-directory: ./src
         run: | 
           dotnet sonarscanner begin \
-            /o:"wandersonaju" \
-            /k:"wandersonaju_sonar-wandersonaju" \
-            /d:sonar.token="4ba411ed5d7139d745a5b795582392f00f845d2d"
+            /o:"${{ secrets.SONAR_ORG }}" \
+            /k:"${{ secrets.SONAR_PROJECT_KEY }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           dotnet build Review-Filmes.sln
-          dotnet sonarscanner end /d:sonar.token="4ba411ed5d7139d745a5b795582392f00f845d2d"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      
       
       
