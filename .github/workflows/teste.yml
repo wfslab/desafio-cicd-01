@@ -7,6 +7,7 @@ jobs:
   unit-test:
     name: Teste de unidade
     runs-on: ubuntu-latest
+
     steps:
       - name: Obtendo o código do projeto
         uses: actions/checkout@v4
@@ -47,3 +48,37 @@ jobs:
         run: dotnet test ./Review-Filmes.Test.Integration/Review-Filmes.Test.Integration.csproj
         env:
           ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Username=review;Password=postgrespwd;Database=review-filmes"
+        
+  sonarqube:
+    name: Scan com o SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtendo o código do projeto
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+          
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.300"
+
+      - name: Instalação do SonarQube Scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      
+      - name: Build e analise
+        working-directory: ./src
+        run: | 
+          dotnet sonarscanner begin \
+            /o:"wandersonaju" \
+            /k:"wandersonaju_sonar-wandersonaju" \
+            /d:sonar.token="4ba411ed5d7139d745a5b795582392f00f845d2d"
+          dotnet build Review-Filmes.sln
+          dotnet sonarscanner end /d:sonar.token="4ba411ed5d7139d745a5b795582392f00f845d2d"
+      
+      
