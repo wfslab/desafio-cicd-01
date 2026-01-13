@@ -9,7 +9,9 @@ on:
 
 permissions:
   contents: read
-  id-token: write    
+  id-token: write
+  security-events: write
+  actions: read    
 
 jobs:
   build:
@@ -83,7 +85,7 @@ jobs:
           severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 
       - name: Upload do resultado do Trivy para o GitHub
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           category: docker-result
           sarif_file: trivy-docker-result.sarif
