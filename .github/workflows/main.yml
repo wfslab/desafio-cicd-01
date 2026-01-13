@@ -18,10 +18,12 @@ jobs:
     steps:
       - name: Obtendo o código do projeto
         uses: actions/checkout@v4
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.300"
+
       - name: Execução do comando build
         working-directory: ./src
         run: dotnet build Review-Filmes.sln
@@ -39,6 +41,11 @@ jobs:
     steps:
       - name: Obtendo o código do projeto
         uses: actions/checkout@v4
+
+      - name: Analise do Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./src/Review-Filmes.Web/Dockerfile
 
       - name: Autenticando no Google Cloud
         id: auth
@@ -65,3 +72,19 @@ jobs:
           tags: |
             ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:latest
             ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:v${{ github.run_number }}
+
+      - name: Executar o Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: "image"
+          image-ref: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE_NAME }}:v${{ github.run_number }}
+          format: sarif
+          output: trivy-docker-result.sarif
+          severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+
+      - name: Upload do resultado do Trivy para o GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          category: docker-result
+          sarif_file: trivy-docker-result.sarif
+          
